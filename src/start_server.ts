@@ -110,6 +110,12 @@ export interface ServerOptions {
    * app, to be handled before all others
    */
   additionalRoutes?: Map<string, express.RequestHandler>;
+
+  /**
+   * An optional list of asset routes to override the default of serving
+   * all files in the project root directory. Defaults to `[ '/*' ]`
+   */
+  assetPaths?: string[];
 }
 
 export type ExpressAppMapper = (app: express.Express, options: ServerOptions) =>
@@ -423,27 +429,34 @@ export function getApp(options: ServerOptions): express.Express {
       urlFromPath(root as LocalFsPath, options.entrypoint as LocalFsPath) :
       'index.html';
 
-  app.get('/*', (req, res) => {
-    pushResources(options, req, res);
-    const filePath = req.path;
-    send(
-        req,
-        filePath,
-        {root: root, index: entrypoint, etag: false, lastModified: false})
-        .on('error',
-            (error: send.SendError) => {
-              if (error.status === 404 && !filePathRegex.test(filePath)) {
-                // The static file handling middleware failed to find a file on
-                // disk. Serve the entry point HTML file instead of a 404.
-                send(req, entrypoint, {root: root}).pipe(res);
-              } else {
-                res.status(error.status || 500);
-                res.type('html');
-                res.end(escapeHtml(error.message));
-              }
-            })
-        .pipe(res);
-  });
+  const assetPaths = options.assetPaths || [
+    '/*'
+  ];
+
+  assetPaths.forEach((currentAssetPath) => {
+    app.get(currentAssetPath, (req, res) => {
+      pushResources(options, req, res);
+      const filePath = req.path;
+      send(
+          req,
+          filePath,
+          {root: root, index: entrypoint, etag: false, lastModified: false})
+          .on('error',
+              (error: send.SendError) => {
+                if (error.status === 404 && !filePathRegex.test(filePath)) {
+                  // The static file handling middleware failed to find a file on
+                  // disk. Serve the entry point HTML file instead of a 404.
+                  send(req, entrypoint, {root: root}).pipe(res);
+                } else {
+                  res.status(error.status || 500);
+                  res.type('html');
+                  res.end(escapeHtml(error.message));
+                }
+              })
+          .pipe(res);
+    });
+  })
+
   return app;
 }
 
