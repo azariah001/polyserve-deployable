@@ -1,15 +1,15 @@
 {
-  "name": "polyserve",
+  "name": "polyserve-deployable",
   "version": "0.27.14",
-  "description": "A simple dev server for bower components",
-  "homepage": "https://github.com/Polymer/tools/tree/master/packages/polyserve",
-  "repository": "github:Polymer/tools",
-  "bugs": "https://github.com/Polymer/tools/issues",
+  "description": "A simple, deployable, dev server for Polymer 3 web components",
+  "homepage": "https://github.com/azariah001/polyserve-deployable",
+  "repository": "github:azariah001/polyserve-deployable",
+  "bugs": "https://github.com/azariah001/polyserve-deployable/issues",
   "license": "BSD-3-Clause",
   "author": "The Polymer Project Authors",
   "main": "./lib/polyserve.js",
   "bin": {
-    "polyserve": "bin/polyserve"
+    "polyserve-deployable": "bin/polyserve"
   },
   "scripts": {
     "build": "npm run clean && tsc && npm run lint",
@@ -24,7 +24,8 @@
   },
   "keywords": [
     "polymer",
-    "polyserve"
+    "polyserve",
+    "polyserve-deployable"
   ],
   "dependencies": {
     "@types/compression": "^0.0.33",
