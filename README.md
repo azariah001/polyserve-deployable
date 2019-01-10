@@ -20,8 +20,8 @@ A fork of the polyserve scripts with the singular purpose of making it possible 
     const options = {
       moduleResolution: "node",
       npm: true,
-      assetPaths: [ // minimum config follows: note assetPaths defaults to '/*' as per standard polyserve defaults if not defined.
-        '/node_modules/*',
+      assetPaths: [ // config for polymer starter kit follows: note assetPaths defaults to '/*' as per standard polyserve defaults if not defined.
+        '/node_modules/@*',
         '/src/*',
         '/images/*',
         '/manifest.json',
@@ -29,6 +29,12 @@ A fork of the polyserve scripts with the singular purpose of making it possible 
         '/sw-precache-config.js'
       ]
     };
+    /* It is possible to just do the '/node_modules/@*' asset path and serve the rest of your site assets
+     * through the standard express app.use method for those who want a little bit more control.
+     * Also note that trailing '/@*' this ensures you're only serving client side modules from '@polymer/' & '@webcomponents/',
+     * there are a handful of other @ directories in the starter kit, if you're paranoid do two separate routes,
+     * that's the whole point, configurable AF.
+     */
     
     polyserveDeployable.startServers(options).then((server) => {
       console.log("polyserve-deployable loaded and ready");
@@ -37,7 +43,10 @@ A fork of the polyserve scripts with the singular purpose of making it possible 
       
       // initilise any other express middleware you wish to use here
     
-      // serve your root app file: in this instance we're using the polymer-starter-kit as our example so this file is in the root directory and is a html file. You can serve this from anywhere in the project structure and utilise any server side rendering template engines you prefer using `app.render`
+      /* serve your root app file: in this instance we're using the polymer-starter-kit as our example
+       * so this file is in the root directory and is a html file. You can serve this from anywhere in the project structure
+       * and utilise any server side rendering template engines you prefer using `app.render`.
+       */
       app.get('/', (req, res) => {
         res.sendFile(path.join(__dirname + '/index.html'));
       });
@@ -48,18 +57,22 @@ A fork of the polyserve scripts with the singular purpose of making it possible 
       process.exit(69);
     });
     
-Note that under the standard polyserve library you can do this import, however, it always served '/*' making it possible to access virtually every file in the root which is not good.
+Note that under the standard polyserve library you can do this import process, however, it always served '/*' making it possible to access virtually every file in the root which is not good.
 
 So I've modified the `app.get('/*', ...)` declaration in the `getApp()` function in `start_server.ts` to accept an array of paths which still defaults to just `[ '/*' ]`. 
 But now it can be overridden with any combination of paths with the only caveat being that it's a 1/1 between the file path from the project root and the express path;
 
-So `'/node_modules/*'` entry in the array is located at `../node_modules/` in the project folder structure and serves as `example.com/node_modules/*` in express. I believe this currently serves all of your `node_modules` so be aware of that, I will be trying to ensure only paths starting with @'s are accessible ASAP.
+So `'/node_modules/@*'` entry in the array is located at `./node_modules/` in the project folder structure and serves as
+ `example.com/node_modules/@*` in express. Again note the `@` this ensures only client side libraries escape the server.
+ Although again if you're still not comfortable with this you can explicitly expand this to two entries of `'/node_modules/@polymer/*'`
+ and `'/node_modules/@webcomponents/*'` in the array, yay configurable!
 
 ### View server
 
-The port defaults to `8081` unless that port is occupied in which case behaviour is the same as polyserve it will keep trying ports until it finds an unused one. Alternatively define `port: ''` in your options object to set the port manually.
+The port defaults to `8081` unless that port is occupied in which case behaviour is the same as polyserve it will keep 
+trying ports until it finds an unused one. Alternatively define `port: ''` in your options object to set the port manually.
  
-Navigate to `localhost:8081/` to view your served app.
+Navigate to `localhost:8081/` to view your served app or configure your proxy to access this route.
 
 ### Options
 
