@@ -1,6 +1,6 @@
 {
   "name": "polyserve-deployable",
-  "version": "0.27.14",
+  "version": "0.27.14.1",
   "description": "A simple, deployable, dev server for Polymer 3 web components",
   "homepage": "https://github.com/azariah001/polyserve-deployable",
   "repository": "github:azariah001/polyserve-deployable",
